@@ -1,6 +1,6 @@
 // Supabase Konfiguration
-const SUPABASE_URL = "https://deine-supabase-url.supabase.co"
-const SUPABASE_KEY = "dein-supabase-anon-key"
+const SUPABASE_URL = "https://ytcrvruzmqjehnoaffda.supabase.co"
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y3J2cnV6bXFqZWhub2FmZmRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDc4NDUsImV4cCI6MjA2MDM4Mzg0NX0.gndc10XvC_Imyl3mPXb8EyXHKZiLAa3FHSn5J39qUB0"
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 // DOM-Elemente
