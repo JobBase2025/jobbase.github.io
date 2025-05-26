@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeighborHelp - Minijobs & Nachbarschaftshilfe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .grid {
+            display: grid;
+        }
+        
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+        
+        @media (min-width: 1280px) {
+            .xl\:grid-cols-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .success-message {
+            background-color: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white border-b shadow-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <!-- Top bar -->
+            <div class="flex items-center justify-between py-2 text-sm">
+                <div class="flex items-center space-x-4">
+                    <span>
+                        Hallo! <span class="text-green-600 hover:underline cursor-pointer">Anmelden</span> oder 
+                        <span class="text-green-600 hover:underline cursor-pointer">registrieren</span>
+                    </span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="hover:underline cursor-pointer">Service anbieten</span>
+                    <span class="hover:underline cursor-pointer">Meine Aufträge</span>
+                    <i data-lucide="bell" class="h-4 w-4 cursor-pointer"></i>
+                    <i data-lucide="wrench" class="h-4 w-4 cursor-pointer"></i>
+                </div>
+            </div>
+
+            <hr class="border-gray-200">
+
+            <!-- Main header -->
+            <div class="flex items-center py-4">
+                <div class="text-2xl font-bold text-green-600 mr-8">NeighborHelp</div>
+
+                <div class="flex-1 max-w-2xl">
+                    <div class="flex">
+                        <select id="categorySelect" class="w-48 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="all">Alle Kategorien</option>
+                            <option value="Garten & Außenbereich">Garten & Außenbereich</option>
+                            <option value="Haushalt & Reinigung">Haushalt & Reinigung</option>
+                            <option value="Handwerk & Reparaturen">Handwerk & Reparaturen</option>
+                            <option value="Tierbetreuung">Tierbetreuung</option>
+                            <option value="Kinderbetreuung">Kinderbetreuung</option>
+                            <option value="Einkaufen & Besorgungen">Einkaufen & Besorgungen</option>
+                            <option value="Nachhilfe & Unterricht">Nachhilfe & Unterricht</option>
+                            <option value="Umzug & Transport">Umzug & Transport</option>
+                        </select>
+                        <input 
+                            type="text" 
+                            id="searchInput"
+                            placeholder="Nach Dienstleistungen suchen (z.B. Rasen mähen, putzen...)"
+                            class="flex-1 px-3 py-2 border-t border-b border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500" onclick="applyFilters()">
+                            <i data-lucide="search" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ml-8 flex items-center space-x-4">
+                    <button class="flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+                        <i data-lucide="heart" class="h-4 w-4 mr-2"></i>
+                        Favoriten
+                    </button>
+                    <button class="flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+                        <i data-lucide="user" class="h-4 w-4 mr-2"></i>
+                        Profil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-gray-100 border-b">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center space-x-8 py-3 text-sm">
+                <button class="category-nav hover:text-green-600 transition-colors" data-category="Garten & Außenbereich">Garten & Außenbereich</button>
+                <button class="category-nav hover:text-green-600 transition-colors" data-category="Haushalt & Reinigung">Haushalt & Reinigung</button>
+                <button class="category-nav hover:text-green-600 transition-colors" data-category="Handwerk & Reparaturen">Handwerk & Reparaturen</button>
+                <button class="category-nav hover:text-green-600 transition-colors" data-category="Tierbetreuung">Tierbetreuung</button>
+                <button class="category-nav hover:text-green-600 transition-colors" data-category="Kinderbetreuung">Kinderbetreuung</button>
+                <button class="category-nav hover:text-green-600 transition-colors" data-category="Einkaufen & Besorgungen">Einkaufen & Besorgungen</button>
+                <button class="category-nav hover:text-green-600 transition-colors" data-category="Nachhilfe & Unterricht">Nachhilfe & Unterricht</button>
+                <span class="text-green-600 hover:underline cursor-pointer">Mehr...</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Error/Success Messages -->
+        <div id="messageContainer"></div>
+
+        <div class="flex gap-6">
+            <!-- Sidebar -->
+            <aside class="w-64 space-y-6">
+                <!-- Database Connection Status -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-3">Datenbankstatus</h3>
+                        <div id="dbStatus" class="flex items-center">
+                            <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                            <span class="text-sm text-gray-600">Verbindung wird geprüft...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sort Filter -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-3">Sortieren nach</h3>
+                        <select id="sortSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="created_at">Neueste zuerst</option>
+                            <option value="price_low">Preis aufsteigend</option>
+                            <option value="price_high">Preis absteigend</option>
+                            <option value="rating">Beste Bewertung</option>
+                            <option value="distance">Entfernung</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Availability Filter -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-3">Verfügbarkeit</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 availability-filter" value="Sofort">
+                                Sofort verfügbar
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 availability-filter" value="Heute">
+                                Heute
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 availability-filter" value="Wochenende">
+                                Wochenende
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 availability-filter" value="Abends">
+                                Abends
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Filter -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-3">Preis pro Stunde</h3>
+                        <div class="space-y-2">
+                            <div class="flex space-x-2">
+                                <input type="number" placeholder="Min €" class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" id="minPrice">
+                                <input type="number" placeholder="Max €" class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" id="maxPrice">
+                            </div>
+                            <button class="w-full px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" onclick="applyFilters()">
+                                Anwenden
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Provider Filter -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-3">Anbieter</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 provider-filter" value="verified">
+                                Nur verifizierte
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 provider-filter" value="top_rated">
+                                Top bewertet (4.5+)
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 provider-filter" value="fast_response">
+                                Schnelle Antwort
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Refresh Button -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-4">
+                        <button onclick="loadJobsFromDatabase()" class="w-full px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <i data-lucide="refresh-cw" class="h-4 w-4 mr-2 inline"></i>
+                            Aktualisieren
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Service listings -->
+            <main class="flex-1">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-2xl font-semibold" id="resultsCount">Services werden geladen...</h1>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-600">Ansicht:</span>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm bg-white">Karten</button>
+                        <button class="px-3 py-1 text-sm text-gray-600">Liste</button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="space-y-4">
+                    <div class="bg-white rounded-lg border shadow-sm animate-pulse">
+                        <div class="p-6">
+                            <div class="flex space-x-4">
+                                <div class="bg-gray-200 h-12 w-12 rounded-full"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="bg-gray-200 h-4 rounded w-3/4"></div>
+                                    <div class="bg-gray-200 h-4 rounded w-1/2"></div>
+                                    <div class="bg-gray-200 h-4 rounded w-2/3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg border shadow-sm animate-pulse">
+                        <div class="p-6">
+                            <div class="flex space-x-4">
+                                <div class="bg-gray-200 h-12 w-12 rounded-full"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="bg-gray-200 h-4 rounded w-3/4"></div>
+                                    <div class="bg-gray-200 h-4 rounded w-1/2"></div>
+                                    <div class="bg-gray-200 h-4 rounded w-2/3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg border shadow-sm animate-pulse">
+                        <div class="p-6">
+                            <div class="flex space-x-4">
+                                <div class="bg-gray-200 h-12 w-12 rounded-full"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="bg-gray-200 h-4 rounded w-3/4"></div>
+                                    <div class="bg-gray-200 h-4 rounded w-1/2"></div>
+                                    <div class="bg-gray-200 h-4 rounded w-2/3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Cards -->
+                <div id="servicesList" class="space-y-4 hidden">
+                    <!-- Services will be populated by JavaScript -->
+                </div>
+
+                <!-- No Results -->
+                <div id="noResults" class="text-center py-12 hidden">
+                    <i data-lucide="search-x" class="h-16 w-16 text-gray-400 mx-auto mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Keine Services gefunden</h3>
+                    <p class="text-gray-600 mb-4">Versuchen Sie andere Suchbegriffe oder Filter.</p>
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        Filter zurücksetzen
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // Ersetzen Sie dies mit Ihrer Supabase URL
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Ersetzen Sie dies mit Ihrem Supabase Anon Key
+        
+        let supabase = null;
+        let currentJobs = [];
+        let filteredJobs = [];
+        let isSupabaseConnected = false;
+
+        // Initialize Supabase
+        function initializeSupabase() {
+            try {
+                if (SUPABASE_URL && SUPABASE_ANON_KEY && 
+                    SUPABASE_URL !== 'YOUR_SUPABASE_URL' && 
+                    SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+                    
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    updateDatabaseStatus('connected', 'Verbunden mit Supabase');
+                    isSupabaseConnected = true;
+                    return true;
+                } else {
+                    updateDatabaseStatus('error', 'Supabase nicht konfiguriert');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Supabase initialization error:', error);
+                updateDatabaseStatus('error', 'Verbindungsfehler');
+                return false;
+            }
+        }
+
+        // Update database status indicator
+        function updateDatabaseStatus(status, message) {
+            const statusElement = document.getElementById('dbStatus');
+            const statusColors = {
+                connected: 'bg-green-500',
+                error: 'bg-red-500',
+                loading: 'bg-yellow-500'
+            };
+            
+            statusElement.innerHTML = `
+                <div class="w-3 h-3 ${statusColors[status]} rounded-full mr-2"></div>
+                <span class="text-sm text-gray-600">${message}</span>
+            `;
+        }
+
+        // Show message to user
+        function showMessage(message, type = 'info') {
+            const messageContainer = document.getElementById('messageContainer');
+            const messageClass = type === 'error' ? 'error-message' : 'success-message';
+            
+            messageContainer.innerHTML = `
+                <div class="${messageClass}">
+                    <div class="flex items-center">
+                        <i data-lucide="${type === 'error' ? 'alert-circle' : 'check-circle'}" class="h-5 w-5 mr-2"></i>
+                        <span>${message}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-auto">
+                            <i data-lucide="x" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Load jobs from Supabase database
+        async function loadJobsFromDatabase() {
+            if (!isSupabaseConnected) {
+                showMessage('Supabase ist nicht konfiguriert. Verwende Mock-Daten.', 'error');
+                loadMockData();
+                return;
+            }
+
+            try {
+                updateDatabaseStatus('loading', 'Lade Daten...');
+                
+                // Query mini_jobs with related data
+                const { data: jobs, error } = await supabase
+                    .from('mini_jobs')
+                    .select(`
+                        *,
+                        service_providers (
+                            *,
+                            user_profiles (
+                                first_name,
+                                last_name,
+                                avatar_url
+                            )
+                        ),
+                        service_categories (
+                            name
+                        )
+                    `)
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (jobs && jobs.length > 0) {
+                    // Transform Supabase data to match our frontend format
+                    currentJobs = jobs.map(job => ({
+                        id: job.id,
+                        title: job.title,
+                        description: job.description,
+                        provider_name: job.service_providers?.user_profiles ? 
+                            `${job.service_providers.user_profiles.first_name} ${job.service_providers.user_profiles.last_name}` : 
+                            'Unbekannter Anbieter',
+                        provider_avatar: job.service_providers?.user_profiles?.avatar_url || 
+                            'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
+                        location: job.location || 'Standort nicht angegeben',
+                        distance: calculateDistance(job.latitude, job.longitude), // You would implement this
+                        hourly_rate: job.hourly_rate,
+                        fixed_price: job.fixed_price,
+                        price_type: job.price_type,
+                        category: job.service_categories?.name || 'Sonstiges',
+                        duration_estimate: job.duration_estimate || 'Nicht angegeben',
+                        availability: job.availability || [],
+                        provider_rating: job.service_providers?.rating || 0,
+                        completed_jobs: job.service_providers?.completed_jobs || 0,
+                        response_time: formatResponseTime(job.service_providers?.response_time_avg),
+                        verified: job.service_providers?.verified || false,
+                        skills: job.skills || [],
+                        posted_date: formatDate(job.created_at),
+                        urgent: job.urgent || false
+                    }));
+
+                    updateDatabaseStatus('connected', `${jobs.length} Jobs geladen`);
+                    showMessage(`${jobs.length} Jobs erfolgreich aus der Datenbank geladen!`, 'success');
+                } else {
+                    currentJobs = [];
+                    updateDatabaseStatus('connected', 'Keine Jobs gefunden');
+                    showMessage('Keine aktiven Jobs in der Datenbank gefunden.', 'info');
+                }
+
+                applyFilters();
+
+            } catch (error) {
+                console.error('Error loading jobs from database:', error);
+                updateDatabaseStatus('error', 'Fehler beim Laden');
+                showMessage(`Fehler beim Laden der Daten: ${error.message}`, 'error');
+                
+                // Fallback to mock data
+                loadMockData();
+            }
+        }
+
+        // Helper functions
+        function calculateDistance(lat, lng) {
+            // Simplified distance calculation - in real app you'd use user's location
+            return (Math.random() * 5).toFixed(1);
+        }
+
+        function formatResponseTime(avgMinutes) {
+            if (!avgMinutes) return '< 1 Std';
+            if (avgMinutes < 60) return `< ${avgMinutes} Min`;
+            return `< ${Math.ceil(avgMinutes / 60)} Std`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return 'vor 1 Tag';
+            if (diffDays < 7) return `vor ${diffDays} Tagen`;
+            return date.toLocaleDateString('de-DE');
+        }
+
+        // Load mock data as fallback
+        function loadMockData() {
+            const mockMiniJobs = [
+                {
+                    id: "1",
+                    title: "Rasen mähen und Garten pflegen",
+                    description: "Suche jemanden für regelmäßiges Rasenmähen und leichte Gartenarbeiten. Eigener Rasenmäher vorhanden.",
+                    provider_name: "Thomas M.",
+                    provider_avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
+                    location: "Berlin-Charlottenburg",
+                    distance: "0.8",
+                    hourly_rate: 15,
+                    price_type: "hourly",
+                    category: "Garten & Außenbereich",
+                    duration_estimate: "2-3 Stunden",
+                    availability: ["Wochenende", "Nachmittags"],
+                    provider_rating: 4.9,
+                    completed_jobs: 127,
+                    response_time: "< 1 Std",
+                    verified: true,
+                    skills: ["Rasenmähen", "Heckenschnitt", "Unkraut entfernen"],
+                    posted_date: "vor 2 Stunden",
+                    urgent: false
+                },
+                {
+                    id: "2",
+                    title: "Wohnung putzen - einmalig",
+                    description: "Benötige Hilfe beim Frühjahrsputz meiner 3-Zimmer Wohnung. Alle Putzmittel sind vorhanden.",
+                    provider_name: "Maria S.",
+                    provider_avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
+                    location: "München-Schwabing",
+                    distance: "1.2",
+                    fixed_price: 80,
+                    price_type: "fixed",
+                    category: "Haushalt & Reinigung",
+                    duration_estimate: "4-5 Stunden",
+                    availability: ["Vormittags", "Wochenende"],
+                    provider_rating: 4.8,
+                    completed_jobs: 89,
+                    response_time: "< 30 Min",
+                    verified: true,
+                    skills: ["Grundreinigung", "Fenster putzen", "Bad & Küche"],
+                    posted_date: "vor 1 Tag",
+                    urgent: true
+                },
+                {
+                    id: "3",
+                    title: "Hund Gassi führen - täglich",
+                    description: "Suche zuverlässige Person für tägliche Hunderunden mit meinem Golden Retriever (2 Jahre alt).",
+                    provider_name: "Lisa K.",
+                    provider_avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
+                    location: "Hamburg-Eimsbüttel",
+                    distance: "0.5",
+                    hourly_rate: 12,
+                    price_type: "hourly",
+                    category: "Tierbetreuung",
+                    duration_estimate: "1 Stunde",
+                    availability: ["Morgens", "Abends"],
+                    provider_rating: 5.0,
+                    completed_jobs: 203,
+                    response_time: "< 15 Min",
+                    verified: true,
+                    skills: ["Hundebetreuung", "Tierlieb", "Zuverlässig"],
+                    posted_date: "vor 3 Stunden",
+                    urgent: false
+                }
+            ];
+
+            currentJobs = mockMiniJobs;
+            updateDatabaseStatus('error', 'Mock-Daten verwendet');
+            applyFilters();
+        }
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Render services
+        function renderServices(jobs) {
+            const servicesList = document.getElementById('servicesList');
+            const resultsCount = document.getElementById('resultsCount');
+            const noResults = document.getElementById('noResults');
+            const loadingState = document.getElementById('loadingState');
+            
+            // Hide loading state
+            loadingState.classList.add('hidden');
+            
+            if (jobs.length === 0) {
+                servicesList.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                resultsCount.textContent = 'Keine Services gefunden';
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            servicesList.classList.remove('hidden');
+            resultsCount.textContent = `${jobs.length} Services in Ihrer Nähe`;
+            
+            servicesList.innerHTML = jobs.map(job => `
+                <div class="bg-white rounded-lg border shadow-sm hover:shadow-lg transition-shadow cursor-pointer">
+                    <div class="p-6">
+                        <div class="flex space-x-4">
+                            <div class="flex-shrink-0">
+                                <img src="${job.provider_avatar}" alt="${job.provider_name}" class="w-12 h-12 rounded-full object-cover border">
+                            </div>
+                            
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-1">
+                                            <h3 class="text-lg font-semibold text-gray-900">${job.title}</h3>
+                                            ${job.urgent ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Dringend</span>' : ''}
+                                            ${job.verified ? '<i data-lucide="check-circle" class="h-4 w-4 text-green-500"></i>' : ''}
+                                        </div>
+                                        <div class="flex items-center text-gray-600 mb-2">
+                                            <span class="font-medium">${job.provider_name}</span>
+                                            <i data-lucide="star" class="h-4 w-4 ml-2 mr-1 fill-yellow-400 text-yellow-400"></i>
+                                            <span class="text-sm">${job.provider_rating}</span>
+                                            <span class="text-sm ml-1">(${job.completed_jobs} Jobs)</span>
+                                        </div>
+                                    </div>
+                                    <button class="p-1 hover:bg-gray-100 rounded" onclick="toggleFavorite('${job.id}')">
+                                        <i data-lucide="heart" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+                                    <div class="flex items-center">
+                                        <i data-lucide="map-pin" class="h-4 w-4 mr-1"></i>
+                                        ${job.location} • ${job.distance} km
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i data-lucide="euro" class="h-4 w-4 mr-1"></i>
+                                        ${job.price_type === 'hourly' ? `${job.hourly_rate}€/Std` : `${job.fixed_price}€ Festpreis`}
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i data-lucide="clock" class="h-4 w-4 mr-1"></i>
+                                        ${job.duration_estimate}
+                                    </div>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">${job.category}</span>
+                                </div>
+                                
+                                <p class="text-gray-700 text-sm mb-3 line-clamp-2">${job.description}</p>
+                                
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    ${job.skills.slice(0, 3).map(skill => 
+                                        `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">${skill}</span>`
+                                    ).join('')}
+                                    ${job.skills.length > 3 ? `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">+${job.skills.length - 3} weitere</span>` : ''}
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <div class="flex items-center">
+                                            <i data-lucide="calendar" class="h-3 w-3 mr-1"></i>
+                                            Verfügbar: ${job.availability.join(', ')}
+                                        </div>
+                                        <div>Antwortzeit: ${job.response_time}</div>
+                                        <div>${job.posted_date}</div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" onclick="sendMessage('${job.id}')">Nachricht</button>
+                                        <button class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700" onclick="bookService('${job.id}')">Beauftragen</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Re-initialize Lucide icons for new content
+            lucide.createIcons();
+        }
+
+        // Filter functions
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.getElementById('categorySelect').value;
+            const sortBy = document.getElementById('sortSelect').value;
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+            
+            // Apply search and category filters
+            filteredJobs = currentJobs.filter(job => {
+                const matchesSearch = job.title.toLowerCase().includes(searchTerm) ||
+                                    job.description.toLowerCase().includes(searchTerm) ||
+                                    job.skills.some(skill => skill.toLowerCase().includes(searchTerm));
+                const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
+                
+                // Price filter
+                let matchesPrice = true;
+                if (minPrice || maxPrice) {
+                    const price = job.price_type === 'hourly' ? job.hourly_rate : job.fixed_price;
+                    const min = minPrice ? parseInt(minPrice) : 0;
+                    const max = maxPrice ? parseInt(maxPrice) : Infinity;
+                    matchesPrice = price >= min && price <= max;
+                }
+                
+                return matchesSearch && matchesCategory && matchesPrice;
+            });
+            
+            // Apply sorting
+            filteredJobs.sort((a, b) => {
+                switch (sortBy) {
+                    case 'price_low':
+                        const priceA = a.price_type === 'hourly' ? a.hourly_rate : a.fixed_price;
+                        const priceB = b.price_type === 'hourly' ? b.hourly_rate : b.fixed_price;
+                        return priceA - priceB;
+                    case 'price_high':
+                        const priceA2 = a.price_type === 'hourly' ? a.hourly_rate : a.fixed_price;
+                        const priceB2 = b.price_type === 'hourly' ? b.hourly_rate : b.fixed_price;
+                        return priceB2 - priceA2;
+                    case 'rating':
+                        return b.provider_rating - a.provider_rating;
+                    case 'distance':
+                        return parseFloat(a.distance) - parseFloat(b.distance);
+                    case 'created_at':
+                    default:
+                        return b.id.localeCompare(a.id); // Simplified sorting by ID
+                }
+            });
+            
+            renderServices(filteredJobs);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categorySelect').value = 'all';
+            document.getElementById('sortSelect').value = 'created_at';
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            
+            // Reset checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[type="radio"]').forEach(rb => rb.checked = false);
+            
+            applyFilters();
+        }
+
+        // Action functions
+        function toggleFavorite(jobId) {
+            showMessage('Favorit hinzugefügt!', 'success');
+        }
+
+        function sendMessage(jobId) {
+            showMessage('Nachrichtenfunktion würde hier geöffnet werden.', 'info');
+        }
+
+        function bookService(jobId) {
+            showMessage('Buchungsformular würde hier geöffnet werden.', 'info');
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('categorySelect').addEventListener('change', applyFilters);
+        document.getElementById('sortSelect').addEventListener('change', applyFilters);
+
+        // Category navigation
+        document.querySelectorAll('.category-nav').forEach(button => {
+            button.addEventListener('click', () => {
+                const category = button.getAttribute('data-category');
+                document.getElementById('categorySelect').value = category;
+                applyFilters();
+            });
+        });
+
+        // Initialize page
+        function initializePage() {
+            // Initialize Supabase
+            const supabaseInitialized = initializeSupabase();
+            
+            // Load data
+            if (supabaseInitialized) {
+                loadJobsFromDatabase();
+            } else {
+                loadMockData();
+            }
+        }
+
+        // Start the app
+        initializePage();
+    </script>
+</body>
+</html>
