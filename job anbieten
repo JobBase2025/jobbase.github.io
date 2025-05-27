@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HilfeGesucht - Finden Sie Hilfe in Ihrer Nachbarschaft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blue: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af'
+                        },
+                        indigo: {
+                            50: '#eef2ff',
+                            200: '#c7d2fe'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(to bottom right, #eff6ff, #eef2ff);
+        }
+        .loading {
+            display: none;
+        }
+        .success-message {
+            display: none;
+        }
+        .error-message {
+            display: none;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+                <h1 class="text-4xl font-bold text-gray-900">HilfeGesucht</h1>
+            </div>
+            <p class="text-xl text-gray-600">Finden Sie Hilfe in Ihrer Nachbarschaft</p>
+            <p class="text-sm text-gray-500 mt-2">
+                Stellen Sie Ihre Hilfsanfrage und lassen Sie sich von Nachbarn unterstützen
+            </p>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message max-w-2xl mx-auto mb-6">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-green-800 font-medium">Hilfsanfrage erstellt!</h3>
+                        <p class="text-green-700 text-sm">Ihre Anfrage wurde erfolgreich übermittelt. Hoffentlich meldet sich bald jemand!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message max-w-2xl mx-auto mb-6">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-red-800 font-medium">Fehler</h3>
+                        <p id="errorText" class="text-red-700 text-sm">Ein Fehler ist aufgetreten.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-lg shadow-sm border border-blue-200">
+                <!-- Card Header -->
+                <div class="bg-blue-50 px-6 py-4 border-b border-blue-200 rounded-t-lg">
+                    <h2 class="text-xl font-semibold text-blue-800">Hilfe anfragen</h2>
+                    <p class="text-blue-600 text-sm mt-1">Beschreiben Sie, wobei Sie Unterstützung benötigen</p>
+                </div>
+
+                <!-- Card Content -->
+                <div class="p-6">
+                    <!-- Info Box -->
+                    <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-200 mb-6">
+                        <svg class="h-8 w-8 text-blue-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <p class="text-sm text-blue-700 font-medium">
+                            Beschreiben Sie Ihr Anliegen und finden Sie hilfsbereite Nachbarn!
+                        </p>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="helpForm" class="space-y-4">
+                        <!-- Title -->
+                        <div class="space-y-2">
+                            <label for="title" class="block text-sm font-medium text-gray-700">
+                                Was brauchen Sie für Hilfe? *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="title" 
+                                name="title" 
+                                required
+                                placeholder="z.B. Einkaufen gehen, Rasen mähen, Babysitting..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+
+                        <!-- Location -->
+                        <div class="space-y-2">
+                            <label for="location" class="block text-sm font-medium text-gray-700">
+                                Wo? (Stadtteil/Ort) *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="location" 
+                                name="location" 
+                                required
+                                placeholder="z.B. Mitte, Prenzlauer Berg, Hauptstraße 15..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+
+                        <!-- Duration and Urgency -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label for="duration" class="block text-sm font-medium text-gray-700">
+                                    Zeitaufwand
+                                </label>
+                                <select 
+                                    id="duration" 
+                                    name="duration"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="">Wie lange?</option>
+                                    <option value="30min">30 Minuten</option>
+                                    <option value="1-2h">1-2 Stunden</option>
+                                    <option value="halber-tag">Halber Tag</option>
+                                    <option value="ganzer-tag">Ganzer Tag</option>
+                                    <option value="mehrere-tage">Mehrere Tage</option>
+                                    <option value="regelmaessig">Regelmäßig</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="urgency" class="block text-sm font-medium text-gray-700">
+                                    Wann benötigt?
+                                </label>
+                                <select 
+                                    id="urgency" 
+                                    name="urgency"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="">Dringlichkeit</option>
+                                    <option value="sofort">🚨 Sofort/Notfall</option>
+                                    <option value="heute">⏰ Heute</option>
+                                    <option value="diese-woche">📅 Diese Woche</option>
+                                    <option value="naechste-woche">📆 Nächste Woche</option>
+                                    <option value="flexibel">🕐 Flexibel</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Payment -->
+                        <div class="space-y-2">
+                            <label for="payment" class="block text-sm font-medium text-gray-700">
+                                Bezahlung/Gegenleistung
+                            </label>
+                            <input 
+                                type="text" 
+                                id="payment" 
+                                name="payment"
+                                placeholder="z.B. 15€/Stunde, 50€ pauschal, Kaffee und Kuchen, Nachbarschaftshilfe"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                            <p class="text-xs text-gray-500">Geben Sie an, was Sie als Dankeschön anbieten möchten</p>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="space-y-2">
+                            <label for="description" class="block text-sm font-medium text-gray-700">
+                                Detaillierte Beschreibung *
+                            </label>
+                            <textarea 
+                                id="description" 
+                                name="description" 
+                                required
+                                rows="5"
+                                placeholder="Beschreiben Sie genau, wobei Sie Hilfe brauchen. Je detaillierter, desto besser können Ihnen Nachbarn helfen..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            ></textarea>
+                        </div>
+
+                        <!-- Contact Info -->
+                        <div class="space-y-2">
+                            <label for="contact_info" class="block text-sm font-medium text-gray-700">
+                                Wie können Sie erreicht werden? *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="contact_info" 
+                                name="contact_info" 
+                                required
+                                placeholder="E-Mail oder Telefonnummer"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+
+                        <!-- Name -->
+                        <div class="space-y-2">
+                            <label for="name" class="block text-sm font-medium text-gray-700">
+                                Ihr Name (optional)
+                            </label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name"
+                                placeholder="Vorname oder Spitzname für mehr Vertrauen"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center justify-center"
+                        >
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            <span id="submitText">Hilfsanfrage veröffentlichen</span>
+                        </button>
+
+                        <!-- Loading State -->
+                        <div id="loadingState" class="loading w-full bg-gray-400 text-white font-medium py-2 px-4 rounded-md flex items-center justify-center">
+                            <svg class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Wird erstellt...
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('helpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Validate required fields
+            if (!data.title || !data.location || !data.description || !data.contact_info) {
+                showError('Alle Pflichtfelder müssen ausgefüllt werden.');
+                return;
+            }
+            
+            // Validate contact info
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const phoneRegex = /^[\d\s\-+()]+$/;
+            if (!emailRegex.test(data.contact_info) && !phoneRegex.test(data.contact_info)) {
+                showError('Bitte geben Sie eine gültige E-Mail-Adresse oder Telefonnummer ein.');
+                return;
+            }
+            
+            // Show loading state
+            showLoading();
+            
+            // Simulate form submission (replace with actual API call)
+            setTimeout(() => {
+                hideLoading();
+                showSuccess();
+                this.reset();
+            }, 2000);
+        });
+        
+        function showLoading() {
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('submitBtn').style.display = 'flex';
+            document.getElementById('loadingState').style.display = 'none';
+        }
+        
+        function showSuccess() {
+            hideError();
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 5000);
+        }
+        
+        function showError(message) {
+            hideSuccess();
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('errorMessage').style.display = 'none';
+            }, 5000);
+        }
+        
+        function hideSuccess() {
+            document.getElementById('successMessage').style.display = 'none';
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
