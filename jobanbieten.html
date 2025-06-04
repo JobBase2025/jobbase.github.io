@@ -380,7 +380,7 @@
             try {
                 // Save to Supabase
                 const { error } = await supabaseClient
-                    .from('help_requests')
+                    .from('Jobs_anbieten')
                     .insert([data]);
 
                 if (error) {
