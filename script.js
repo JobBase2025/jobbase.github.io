@@ -1,121 +1,87 @@
-// Supabase Konfiguration
-const SUPABASE_URL = "https://ytcrvruzmqjehnoaffda.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y3J2cnV6bXFqZWhub2FmZmRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDc4NDUsImV4cCI6MjA2MDM4Mzg0NX0.gndc10XvC_Imyl3mPXb8EyXHKZiLAa3FHSn5J39qUB0";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Supabase-Verbindung
+const supabase = window.supabase.createClient(
+"https://ytcrvruzmqjehnoaffda.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y3J2cnV6bXFqZWhub2FmZmRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDc4NDUsImV4cCI6MjA2MDM4Mzg0NX0.gndc10XvC_Imyl3mPXb8EyXHKZiLAa3FHSn5J39qUB0"
 
-// DOM-Elemente
-const loginButton = document.getElementById("login-button");
-const registerButton = document.getElementById("register-button");
-const logoutButton = document.getElementById("logout-button");
-const userProfile = document.getElementById("user-profile");
-const userEmail = document.getElementById("user-email");
-const avatarImage = document.getElementById("avatar-image");
+);
 
-// Benutzeroberfläche aktualisieren
-async function updateUserInterface(user) {
-  if (user) {
-    loginButton?.classList.add("hidden");
-    registerButton?.classList.add("hidden");
-    userProfile?.classList.remove("hidden");
-    if (userEmail) userEmail.textContent = user.email;
+// Tabs auf Login-/Register-Seite
+document.getElementById('login-tab')?.addEventListener('click', () => {
+  document.getElementById('login-form')?.classList.remove('hidden');
+  document.getElementById('register-form')?.classList.add('hidden');
+});
+document.getElementById('register-tab')?.addEventListener('click', () => {
+  document.getElementById('login-form')?.classList.add('hidden');
+  document.getElementById('register-form')?.classList.remove('hidden');
+});
 
-    // Avatar laden, falls vorhanden
-    if (avatarImage) {
-      try {
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select("avatar_url")
-          .eq("id", user.id)
-          .single();
+// LOGIN
+document.getElementById("login-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-        avatarImage.src = profile?.avatar_url || "default-avatar.png";
-      } catch (err) {
-        console.warn("Avatar konnte nicht geladen werden:", err.message);
-        avatarImage.src = "default-avatar.png";
-      }
-    }
+  const email = document.getElementById("login-email")?.value.trim();
+  const password = document.getElementById("login-password")?.value;
+
+  if (!email || !password) return alert("E-Mail und Passwort erforderlich.");
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    alert("❌ " + error.message);
   } else {
-    loginButton?.classList.remove("hidden");
-    registerButton?.classList.remove("hidden");
-    userProfile?.classList.add("hidden");
-    if (userEmail) userEmail.textContent = "";
-    if (avatarImage) avatarImage.src = "default-avatar.png";
+    alert("✅ Eingeloggt");
+    window.location.href = "profil.html";
   }
-}
+});
 
-// Benachrichtigung anzeigen
-function showNotification(message, type = "info") {
-  document.querySelectorAll(".notification").forEach((n) => n.remove());
+// REGISTRIERUNG
+document.getElementById("register-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-  const notification = document.createElement("div");
-  notification.className = `notification ${type}`;
-  notification.textContent = message;
-  document.body.appendChild(notification);
+  const email = document.getElementById("register-email")?.value.trim();
+  const password = document.getElementById("register-password")?.value;
+  const confirm = document.getElementById("register-password-confirm")?.value;
+  const userType = document.querySelector('input[name="user-type"]:checked')?.value;
+  const terms = document.getElementById("terms-checkbox")?.checked;
 
-  setTimeout(() => {
-    notification.classList.add("fade-out");
-    setTimeout(() => notification.remove(), 500);
-  }, 5000);
-}
+  if (password !== confirm) return alert("❌ Passwörter stimmen nicht überein.");
+  if (!terms) return alert("❌ Bitte AGB akzeptieren.");
 
-// CSS für Benachrichtigungen hinzufügen
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { user_type: userType } }
+  });
+
+  if (error) {
+    alert("❌ " + error.message);
+  } else {
+    // Nur erlaubte Felder in user_profiles einfügen
+    await supabase.from("user_profiles").insert([{
+      id: data.user.id,
+      created_at: new Date()
+    }]);
+
+    alert("✅ Registriert! Bitte E-Mail bestätigen.");
+    window.location.href = "profil.html";
+  }
+});
+
+// LOGOUT
+document.getElementById("logout-button")?.addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  alert("✅ Abgemeldet");
+  window.location.href = "anmelden.html";
+});
+
+// USER-INFO ANZEIGEN (Header o. Ä.)
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) throw error;
+  const { data } = await supabase.auth.getUser();
+  const emailDisplay = document.getElementById("user-email");
 
-    updateUserInterface(user);
-  } catch (error) {
-    console.warn("Kein Benutzer angemeldet oder Fehler:", error.message);
-  }
-
-  const style = document.createElement("style");
-  style.textContent = `
-    .notification {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 15px 20px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-      animation: slideIn 0.3s ease;
-    }
-    .notification.info { background-color: #3b82f6; }
-    .notification.success { background-color: #10b981; }
-    .notification.error { background-color: #ef4444; }
-    .notification.fade-out { opacity: 0; transition: opacity 0.5s ease; }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-  `;
-  document.head.appendChild(style);
-});
-
-// Logout
-logoutButton?.addEventListener("click", async () => {
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-
-    updateUserInterface(null);
-    showNotification("Erfolgreich abgemeldet!", "success");
-  } catch (error) {
-    showNotification(error.message, "error");
-  }
-});
-
-// Auth-Status überwachen
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === "SIGNED_IN" && session) {
-    updateUserInterface(session.user);
-  } else if (event === "SIGNED_OUT") {
-    updateUserInterface(null);
+  if (data?.user && emailDisplay) {
+    emailDisplay.textContent = data.user.email;
+    document.getElementById("user-profile")?.classList.remove("hidden");
+    document.getElementById("login-button")?.classList.add("hidden");
+    document.getElementById("register-button")?.classList.add("hidden");
   }
 });
