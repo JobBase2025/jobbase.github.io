@@ -1,55 +1,31 @@
-<!-- nav.html -->
-<header>
-  <div class="container">
-    <div class="logo">
-      <a href="index.html"><img src="/image.png" alt="JobConnect Logo" style="height: 40px;"></a>
+<nav class="bg-white shadow-md">
+  <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    
+    <!-- Logo -->
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="logo.png" alt="JobBase Logo" class="h-10">
+      <span class="text-xl font-semibold">JobBase</span>
+    </a>
+
+    <!-- Navigation links -->
+    <div class="flex items-center gap-4">
+      <a href="jobsuche.html" class="text-gray-700 hover:text-blue-600">Job suchen</a>
+      <a href="jobanbieten.html" class="text-gray-700 hover:text-blue-600">Job anbieten</a>
     </div>
-    <nav>
-      <ul>
-        <li><a href="index.html" class="nav-link">Startseite</a></li>
-        <li><a href="jobsuche.html" class="nav-link">Jobs finden</a></li>
-        <li><a href="jobanbieten.html" class="nav-link">Job anbieten</a></li>
-        <li><a href="#">Über uns</a></li>
-      </ul>
-    </nav>
-    <div class="auth-buttons" id="auth-area">
-      <!-- Wird dynamisch durch JS ersetzt -->
+
+    <!-- Auth-Buttons -->
+    <div class="flex items-center gap-3">
+      <!-- Sichtbar, wenn NICHT eingeloggt -->
+      <button id="login-button" class="text-sm text-blue-600 hover:underline">Anmelden</button>
+      <button id="register-button" class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Registrieren</button>
+
+      <!-- Sichtbar, wenn eingeloggt -->
+      <div id="user-profile" class="hidden flex items-center gap-3">
+        <span id="user-email" class="text-sm text-gray-600"></span>
+        <a href="profil.html" class="text-sm text-gray-700 hover:text-blue-600">Profil</a>
+        <a href="favoriten.html" class="text-sm text-gray-700 hover:text-blue-600">Favoriten</a>
+        <button onclick="logout()" class="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Logout</button>
+      </div>
     </div>
   </div>
-</header>
-
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://ytcrvruzmqjehnoaffda.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  function renderAuthButtons(user) {
-    const authArea = document.getElementById("auth-area");
-    if (!authArea) return;
-
-    if (user) {
-      authArea.innerHTML = `
-        <span id="user-email">${user.email}</span>
-        <a href="profil.html"><button class="btn">Profil</button></a>
-        <a href="favoriten.html"><button class="btn">Favoriten</button></a>
-        <button class="btn btn-small" onclick="logout()">Abmelden</button>
-      `;
-    } else {
-      authArea.innerHTML = `
-        <a href="anmelden.html"><button class="btn">Anmelden</button></a>
-        <a href="anmelden.html#register"><button class="btn btn-primary">Registrieren</button></a>
-      `;
-    }
-  }
-
-  async function logout() {
-    await supabase.auth.signOut();
-    window.location.href = "index.html";
-  }
-
-  // Beim Laden prüfen, ob Benutzer angemeldet ist
-  supabase.auth.getUser().then(({ data: { user } }) => {
-    renderAuthButtons(user);
-  });
-</script>
+</nav>
