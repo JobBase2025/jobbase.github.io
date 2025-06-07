@@ -1,25 +1,27 @@
 <nav class="bg-white shadow-md">
   <div class="container mx-auto px-4 py-3 flex justify-between items-center">
     
-    <!-- Logo -->
+    <!-- Logo-Link zur Startseite -->
     <a href="index.html" class="flex items-center gap-2">
-      <img src="logo.png" alt="JobBase Logo" class="h-10">
-      <span class="text-xl font-semibold">JobBase</span>
+      <img src="logo.png" alt="JobBase Logo" class="h-10" />
+      <span class="text-xl font-semibold text-gray-800">JobBase</span>
     </a>
 
-    <!-- Navigation links -->
+    <!-- Hauptnavigation -->
     <div class="flex items-center gap-4">
       <a href="jobsuche.html" class="text-gray-700 hover:text-blue-600">Job suchen</a>
       <a href="jobanbieten.html" class="text-gray-700 hover:text-blue-600">Job anbieten</a>
     </div>
 
-    <!-- Auth-Buttons -->
+    <!-- Auth-Bereich -->
     <div class="flex items-center gap-3">
-      <!-- Sichtbar, wenn NICHT eingeloggt -->
-      <button id="login-button" class="text-sm text-blue-600 hover:underline">Anmelden</button>
-      <button id="register-button" class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Registrieren</button>
+      <!-- Wenn NICHT eingeloggt -->
+      <div id="auth-buttons">
+        <a href="anmelden.html" class="text-sm text-blue-600 hover:underline">Anmelden</a>
+        <a href="anmelden.html#register" class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Registrieren</a>
+      </div>
 
-      <!-- Sichtbar, wenn eingeloggt -->
+      <!-- Wenn eingeloggt -->
       <div id="user-profile" class="hidden flex items-center gap-3">
         <span id="user-email" class="text-sm text-gray-600"></span>
         <a href="profil.html" class="text-sm text-gray-700 hover:text-blue-600">Profil</a>
