@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
+  <!-- Navigation -->
   <div id="nav-placeholder"></div>
   <script>
     fetch("nav.html")
@@ -17,6 +18,7 @@
       });
   </script>
 
+  <!-- Login/Register -->
   <div class="flex items-center justify-center py-10">
     <div class="bg-white rounded shadow p-6 w-full max-w-md">
       <div class="text-center mb-6">
@@ -54,17 +56,34 @@
     </div>
   </div>
 
+  <!-- Tab-Switching -->
   <script>
-    document.getElementById('login-tab').addEventListener('click', () => {
-      document.getElementById('login-form').classList.remove('hidden');
-      document.getElementById('register-form').classList.add('hidden');
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+
+    loginTab?.addEventListener('click', () => {
+      loginForm?.classList.remove('hidden');
+      registerForm?.classList.add('hidden');
+      loginTab.classList.add('border-blue-600');
+      registerTab.classList.remove('border-blue-600');
+      registerTab.classList.add('text-gray-500');
+      loginTab.classList.remove('text-gray-500');
     });
-    document.getElementById('register-tab').addEventListener('click', () => {
-      document.getElementById('login-form').classList.add('hidden');
-      document.getElementById('register-form').classList.remove('hidden');
+
+    registerTab?.addEventListener('click', () => {
+      loginForm?.classList.add('hidden');
+      registerForm?.classList.remove('hidden');
+      registerTab.classList.add('border-blue-600');
+      loginTab.classList.remove('border-blue-600');
+      loginTab.classList.add('text-gray-500');
+      registerTab.classList.remove('text-gray-500');
     });
+
+    // Direkt beim Laden #register anzeigen
     if (window.location.hash === "#register") {
-      document.getElementById('login-tab').click();
+      registerTab?.click();
     }
   </script>
 
