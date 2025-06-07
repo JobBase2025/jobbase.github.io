@@ -4,51 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Anmeldung – Jobbase</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script defer src="script.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white rounded shadow p-6 w-full max-w-md">
-    <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold">Jobbase</h1>
-      <p class="text-sm text-gray-500">Anmelden oder Registrieren</p>
-    </div>
+<body class="bg-gray-100 min-h-screen">
+  <div id="nav-placeholder"></div>
+  <script>
+    fetch("nav.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("nav-placeholder").innerHTML = html;
+      });
+  </script>
 
-    <div class="flex mb-4">
-      <button id="login-tab" class="flex-1 px-4 py-2 font-semibold border-b-2 border-blue-600">Login</button>
-      <button id="register-tab" class="flex-1 px-4 py-2 font-semibold text-gray-500">Registrieren</button>
-    </div>
-
-    <!-- Login-Formular -->
-    <form id="login-form" class="space-y-4">
-      <input type="email" id="login-email" placeholder="E-Mail" required class="w-full border px-3 py-2 rounded" />
-      <input type="password" id="login-password" placeholder="Passwort" required class="w-full border px-3 py-2 rounded" />
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Anmelden</button>
-    </form>
-
-    <!-- Registrierungs-Formular -->
-    <form id="register-form" class="space-y-4 hidden mt-6">
-      <input type="email" id="register-email" placeholder="E-Mail" required class="w-full border px-3 py-2 rounded" />
-      <input type="password" id="register-password" placeholder="Passwort (min. 6 Zeichen)" required minlength="6" class="w-full border px-3 py-2 rounded" />
-      <input type="password" id="register-password-confirm" placeholder="Passwort bestätigen" required minlength="6" class="w-full border px-3 py-2 rounded" />
-
-      <div class="flex items-center gap-2 text-sm">
-        <input type="checkbox" id="terms-checkbox" required />
-        <label for="terms-checkbox">Ich akzeptiere die AGB & Datenschutz</label>
+  <div class="flex items-center justify-center py-10">
+    <div class="bg-white rounded shadow p-6 w-full max-w-md">
+      <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold">Jobbase</h1>
+        <p class="text-sm text-gray-500">Anmelden oder Registrieren</p>
       </div>
 
-      <div class="text-sm">Ich bin ein:
-        <label><input type="radio" name="user-type" value="worker" checked> Arbeitnehmer</label>
-        <label><input type="radio" name="user-type" value="employer"> Arbeitgeber</label>
+      <div class="flex mb-4">
+        <button id="login-tab" class="flex-1 px-4 py-2 font-semibold border-b-2 border-blue-600">Login</button>
+        <button id="register-tab" class="flex-1 px-4 py-2 font-semibold text-gray-500">Registrieren</button>
       </div>
 
-      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Registrieren</button>
-    </form>
+      <!-- Login-Formular -->
+      <form id="login-form" class="space-y-4">
+        <input type="email" id="login-email" placeholder="E-Mail" required class="w-full border px-3 py-2 rounded" />
+        <input type="password" id="login-password" placeholder="Passwort" required class="w-full border px-3 py-2 rounded" />
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Anmelden</button>
+      </form>
+
+      <!-- Registrierungs-Formular -->
+      <form id="register-form" class="space-y-4 hidden mt-6">
+        <input type="email" id="register-email" placeholder="E-Mail" required class="w-full border px-3 py-2 rounded" />
+        <input type="password" id="register-password" placeholder="Passwort (min. 6 Zeichen)" required minlength="6" class="w-full border px-3 py-2 rounded" />
+        <input type="password" id="register-password-confirm" placeholder="Passwort bestätigen" required minlength="6" class="w-full border px-3 py-2 rounded" />
+        <div class="flex items-center gap-2 text-sm">
+          <input type="checkbox" id="terms-checkbox" required />
+          <label for="terms-checkbox">Ich akzeptiere die AGB & Datenschutz</label>
+        </div>
+        <div class="text-sm">Ich bin ein:
+          <label><input type="radio" name="user-type" value="worker" checked> Arbeitnehmer</label>
+          <label><input type="radio" name="user-type" value="employer"> Arbeitgeber</label>
+        </div>
+        <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Registrieren</button>
+      </form>
+    </div>
   </div>
 
   <script>
-    // Tabs wechseln
     document.getElementById('login-tab').addEventListener('click', () => {
       document.getElementById('login-form').classList.remove('hidden');
       document.getElementById('register-form').classList.add('hidden');
@@ -57,6 +63,11 @@
       document.getElementById('login-form').classList.add('hidden');
       document.getElementById('register-form').classList.remove('hidden');
     });
+    if (window.location.hash === "#register") {
+      document.getElementById('login-tab').click();
+    }
   </script>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
