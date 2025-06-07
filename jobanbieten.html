@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Job anbieten – Jobbase</title>
+  <title>Job anbieten – JobBase</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Navigation -->
   <div id="nav-placeholder"></div>
   <script>
     fetch("nav.html")
@@ -21,8 +22,11 @@
     <h2 class="text-2xl font-semibold mb-6 text-center">Job in deiner Nachbarschaft anbieten</h2>
 
     <form id="jobForm" class="space-y-4 bg-white p-6 rounded shadow">
-      <!-- Felder wie gehabt -->
-      <!-- ... -->
+      <input type="text" id="title" placeholder="Jobtitel z. B. 'Rasen mähen'" class="w-full border px-3 py-2 rounded" required />
+      <textarea id="description" placeholder="Beschreibe den Job..." rows="4" class="w-full border px-3 py-2 rounded" required></textarea>
+      <input type="text" id="location" placeholder="Ort oder Stadtteil" class="w-full border px-3 py-2 rounded" required />
+      <input type="number" id="payment" placeholder="Bezahlung in €" class="w-full border px-3 py-2 rounded" required />
+      <input type="date" id="date" class="w-full border px-3 py-2 rounded" required />
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Job veröffentlichen</button>
       <p id="message" class="text-center text-sm mt-4"></p>
     </form>
