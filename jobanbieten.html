@@ -1,47 +1,29 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Job anbieten – JobBase</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-    <h1>Job anbieten</h1>
-    <form id="jobForm">
-        <input type="text" id="title" placeholder="Titel" required><br>
-        <input type="text" id="location" placeholder="Ort" required><br>
-        <input type="text" id="duration" placeholder="Dauer"><br>
-        <input type="text" id="urgency" placeholder="Dringlichkeit"><br>
-        <input type="text" id="payment" placeholder="Bezahlung"><br>
-        <textarea id="description" placeholder="Beschreibung" required></textarea><br>
-        <button type="submit">Speichern</button>
-    </form>
-    <div id="message"></div>
-
-    <script>
-        const supabase = supabase.createClient("https://ytcrvruzmqjehnoaffda.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y3J2cnV6bXFqZWhub2FmZmRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDc4NDUsImV4cCI6MjA2MDM4Mzg0NX0.gndc10XvC_Imyl3mPXb8EyXHKZiLAa3FHSn5J39qUB0");
-
-        document.getElementById("jobForm").addEventListener("submit", async function(e) {
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('helpForm');
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const title = document.getElementById("title").value;
-            const location = document.getElementById("location").value;
-            const duration = document.getElementById("duration").value;
-            const urgency = document.getElementById("urgency").value;
-            const payment = document.getElementById("payment").value;
-            const description = document.getElementById("description").value;
 
-            const { error } = await supabase.from("jobs").insert([{
-                title,
-                location,
-                duration,
-                urgency,
-                payment,
-                description
-            }]);
+            const formData = {
+                title: form.title.value,
+                location: form.location.value,
+                duration: form.duration.value,
+                urgency: form.urgency.value,
+                payment: form.payment.value,
+                description: form.description.value,
+                created_at: new Date().toISOString()
+            };
 
-            const msg = document.getElementById("message");
-            msg.textContent = error ? "Fehler: " + error.message : "Job erfolgreich eingetragen!";
+            const { data, error } = await supabase.from('mini_jobs').insert([formData]);
+
+            if (error) {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            } else {
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+                form.reset();
+            }
         });
-    </script>
-</body>
-</html>
+    });
+</script>
