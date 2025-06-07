@@ -4,34 +4,61 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JobBase – Nachbarschaftshilfe & Minijobs</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Eigene Farbwerte hinzufügen -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4f46e5',
+            primaryHover: '#4338ca',
+            secondary: '#10b981',
+            secondaryHover: '#059669',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Eigene Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- Dein JS -->
   <script defer src="main/script.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <header class="bg-white shadow">
+  <!-- HEADER -->
+  <header class="bg-white shadow sticky top-0 z-50">
     <div class="container mx-auto flex justify-between items-center p-4">
-      <div class="flex items-center gap-4">
-        <img src="/image.png" alt="JobConnect Logo" class="w-12 h-12" />
-        <h1 class="text-xl font-bold text-blue-600">JobBase</h1>
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <img src="image.png" alt="JobConnect Logo" class="w-10 h-10 rounded-full" />
+        <span class="text-xl font-bold text-primary">JobBase</span>
       </div>
 
+      <!-- Navigation -->
       <nav class="space-x-4">
-        <a href="index.html" class="text-blue-600 font-semibold">Startseite</a>
-        <a href="jobsuche.html">Jobs finden</a>
-        <a href="jobanbieten.html">Job anbieten</a>
-        <a href="#">Über uns</a>
+        <a href="index.html" class="text-primary font-semibold">Startseite</a>
+        <a href="jobsuche.html" class="hover:text-primary">Jobs finden</a>
+        <a href="jobanbieten.html" class="hover:text-primary">Job anbieten</a>
+        <a href="#" class="hover:text-primary">Über uns</a>
       </nav>
 
-      <!-- Auth Bereich -->
+      <!-- Auth Buttons -->
       <div class="flex items-center space-x-3 auth-buttons">
         <a href="anmelden.html" id="login-button">
-          <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Anmelden</button>
+          <button class="btn btn-primary">Anmelden</button>
         </a>
         <a href="anmelden.html" id="register-button">
-          <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Registrieren</button>
+          <button class="btn btn-secondary">Registrieren</button>
         </a>
 
         <!-- Eingeloggt sichtbar -->
@@ -40,7 +67,7 @@
           <div class="text-sm">
             <span id="user-email" class="block font-medium"></span>
             <div class="flex gap-2">
-              <a href="profil.html" class="text-blue-600 underline">Mein Profil</a>
+              <a href="profil.html" class="text-primary underline">Mein Profil</a>
               <button id="logout-button" class="text-red-500 underline">Abmelden</button>
             </div>
           </div>
@@ -49,47 +76,46 @@
     </div>
   </header>
 
+  <!-- HERO -->
   <main class="container mx-auto p-6">
     <section class="text-center mb-10">
-      <h2 class="text-3xl font-bold mb-2">Finde Hilfe in deiner Nachbarschaft</h2>
+      <h1 class="text-3xl font-bold mb-2 text-primary">Finde Hilfe in deiner Nachbarschaft</h1>
       <p class="text-gray-600">JobBase bringt helfende Hände mit offenen Aufgaben zusammen.</p>
       <div class="mt-6 space-x-4">
-        <a href="jobsuche.html">
-          <button class="btn btn-primary">Job finden</button>
-        </a>
-        <a href="jobanbieten.html">
-          <button class="btn btn-secondary">Job anbieten</button>
-        </a>
+        <a href="jobsuche.html"><button class="btn btn-primary btn-large">Job finden</button></a>
+        <a href="jobanbieten.html"><button class="btn btn-secondary btn-large">Job anbieten</button></a>
       </div>
     </section>
 
+    <!-- FUNKTIONSWEISE -->
     <section class="features mb-12">
       <h2 class="text-2xl font-semibold text-center mb-6">Wie es funktioniert</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="p-4 bg-white shadow rounded text-center">
           <div class="text-3xl">🔍</div>
-          <h3 class="font-bold mt-2">Suchen</h3>
+          <h3 class="font-bold mt-2 text-primary">Suchen</h3>
           <p>Finde passende Jobs oder Helfer in deiner Nähe.</p>
         </div>
         <div class="p-4 bg-white shadow rounded text-center">
           <div class="text-3xl">🤝</div>
-          <h3 class="font-bold mt-2">Verbinden</h3>
+          <h3 class="font-bold mt-2 text-primary">Verbinden</h3>
           <p>Nimm Kontakt auf und bespreche die Details.</p>
         </div>
         <div class="p-4 bg-white shadow rounded text-center">
           <div class="text-3xl">✅</div>
-          <h3 class="font-bold mt-2">Erledigen</h3>
+          <h3 class="font-bold mt-2 text-primary">Erledigen</h3>
           <p>Führe den Job aus oder lass dir helfen.</p>
         </div>
         <div class="p-4 bg-white shadow rounded text-center">
           <div class="text-3xl">⭐</div>
-          <h3 class="font-bold mt-2">Bewerten</h3>
+          <h3 class="font-bold mt-2 text-primary">Bewerten</h3>
           <p>Gib Feedback und hilf anderen bei der Auswahl.</p>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="bg-gray-800 text-white p-6 text-sm text-center">
     &copy; 2024 JobBase – Alle Rechte vorbehalten.
   </footer>
