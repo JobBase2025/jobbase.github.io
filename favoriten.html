@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Favoriten – Jobbase</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+  <script>
+    fetch("nav.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("nav-placeholder").innerHTML = html;
+      });
+  </script>
+
+  <main class="container" style="padding: 40px 20px;">
+    <h1 style="font-size: 2rem; margin-bottom: 20px;">🧡 Meine Favoriten</h1>
+    <p>Hier werden deine gemerkten Jobs angezeigt. Aktuell sind keine Favoriten vorhanden.</p>
+
+    <!-- Platzhalter -->
+    <div class="category-grid" style="margin-top: 40px;">
+      <div class="category-card">
+        <h3>Beispiel-Job</h3>
+        <p>Dies ist ein Platzhalter für deine gespeicherten Jobs.</p>
+      </div>
+      <div class="category-card">
+        <h3>Noch nichts gespeichert</h3>
+        <p>Füge Jobs über "merken" hinzu, um sie hier zu sehen.</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
