@@ -1,48 +1,92 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Jobs finden – JobBase</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jobbase – Jobs suchen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
-<body>
-    <h1>Jobsuche</h1>
-    <input type="text" id="searchInput" placeholder="Ort oder Titel">
-    <button onclick="loadJobs()">Suchen</button>
-    <div id="jobsList"></div>
+<body class="bg-gray-100 min-h-screen">
+  <header class="bg-white shadow p-4 mb-6">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold text-green-600">Jobbase</h1>
+      <a href="jobanbieten.html" class="text-sm text-blue-600 hover:underline">Job anbieten</a>
+    </div>
+  </header>
 
-    <script>
-        const supabase = supabase.createClient("https://ytcrvruzmqjehnoaffda.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y3J2cnV6bXFqZWhub2FmZmRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDc4NDUsImV4cCI6MjA2MDM4Mzg0NX0.gndc10XvC_Imyl3mPXb8EyXHKZiLAa3FHSn5J39qUB0");
+  <main class="container mx-auto px-4">
+    <div class="mb-4">
+      <h2 class="text-2xl font-semibold mb-2">Jobs in deiner Nachbarschaft</h2>
+      <div class="flex gap-2 mb-4">
+        <input id="searchInput" type="text" placeholder="z. B. Rasen mähen, Einkaufen…" class="w-full px-3 py-2 border rounded" />
+        <button onclick="loadJobs()" class="bg-green-600 text-white px-4 rounded hover:bg-green-700">Suchen</button>
+      </div>
+    </div>
 
-        async function loadJobs() {
-            const search = document.getElementById("searchInput").value;
-            let query = supabase.from("jobs").select("*").order("created_at", { ascending: false });
-            if (search) {
-                query = query.ilike("title", `%{search}%`);
-            }
+    <div id="jobsContainer" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <!-- Dynamisch geladene Jobs erscheinen hier -->
+    </div>
 
-            const { data, error } = await query;
-            const list = document.getElementById("jobsList");
-            list.innerHTML = "";
+    <div id="noResults" class="text-center text-gray-500 mt-10 hidden">
+      Keine Ergebnisse gefunden.
+    </div>
+  </main>
 
-            if (error) {
-                list.textContent = "Fehler: " + error.message;
-                return;
-            }
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://ytcrvruzmqjehnoaffda.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y3J2cnV6bXFqZWhub2FmZmRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDc4NDUsImV4cCI6MjA2MDM4Mzg0NX0.gndc10XvC_Imyl3mPXb8EyXHKZiLAa3FHSn5J39qUB0"
+    );
 
-            if (data.length === 0) {
-                list.textContent = "Keine Jobs gefunden.";
-                return;
-            }
+    async function loadJobs() {
+      const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+      const { data, error } = await supabase
+        .from('mini_jobs')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-            data.forEach(job => {
-                const div = document.createElement("div");
-                div.innerHTML = `<h3>{job.title}</h3><p>{job.location}</p><p>{job.description}</p><hr>`;
-                list.appendChild(div);
-            });
-        }
+      const container = document.getElementById('jobsContainer');
+      container.innerHTML = '';
 
-        document.addEventListener("DOMContentLoaded", loadJobs);
-    </script>
+      if (error || !data) {
+        console.error(error);
+        document.getElementById('noResults').classList.remove('hidden');
+        return;
+      }
+
+      const filtered = data.filter(job =>
+        !searchTerm ||
+        job.title.toLowerCase().includes(searchTerm) ||
+        job.description.toLowerCase().includes(searchTerm)
+      );
+
+      if (filtered.length === 0) {
+        document.getElementById('noResults').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('noResults').classList.add('hidden');
+
+      filtered.forEach(job => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded shadow border";
+
+        card.innerHTML = `
+          <h3 class="text-lg font-semibold mb-1">${job.title}</h3>
+          <p class="text-sm text-gray-600 mb-2">${job.description}</p>
+          <p class="text-sm text-gray-500">
+            📍 ${job.location || 'Ort unbekannt'} <br>
+            ⏱️ ${job.duration || 'Zeit nicht angegeben'} <br>
+            🕒 ${job.urgency || 'Flexibel'} <br>
+            💶 ${job.payment || 'nach Absprache'}
+          </p>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadJobs);
+  </script>
 </body>
 </html>
