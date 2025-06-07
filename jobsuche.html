@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jobsuche – Jobbase</title>
+  <title>Jobsuche – JobBase</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Navigation -->
   <div id="nav-placeholder"></div>
   <script>
     fetch("nav.html")
@@ -19,8 +20,14 @@
 
   <main class="container mx-auto px-4 mt-10">
     <h2 class="text-2xl font-semibold mb-4">Nachbarschafts-Jobs finden</h2>
-    <!-- Suchfeld + Ergebnisse -->
-    <!-- ... -->
+
+    <div class="flex gap-2 mb-4">
+      <input id="searchInput" type="text" placeholder="z. B. 'Rasen mähen'" class="w-full px-3 py-2 border rounded" />
+      <button onclick="loadJobs()" class="bg-green-600 text-white px-4 rounded hover:bg-green-700">Suchen</button>
+    </div>
+
+    <div id="jobsContainer" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div>
+    <div id="noResults" class="text-center text-gray-500 mt-10 hidden">Keine Ergebnisse gefunden.</div>
   </main>
 
   <script src="script.js" defer></script>
