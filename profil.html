@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mein Profil – Jobbase</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase-Client laden -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-  <!-- Dein eigenes JS mit defer, damit DOM zuerst geladen wird -->
   <script defer src="script.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -17,116 +13,29 @@
     <h1 class="text-2xl font-semibold mb-6">Mein Profil</h1>
 
     <form id="profile-form" class="space-y-4">
-      <!-- Profilbild -->
       <div class="flex items-center gap-4">
         <img id="avatar-preview" src="default-avatar.png" alt="Profilbild" class="w-20 h-20 rounded-full object-cover border" />
         <input type="file" id="avatar-upload" accept="image/*" class="text-sm" />
       </div>
 
-      <!-- Vorname -->
       <div>
         <label class="block font-medium">Vorname</label>
         <input id="first-name" type="text" class="w-full border px-3 py-2 rounded" />
       </div>
 
-      <!-- Nachname -->
       <div>
         <label class="block font-medium">Nachname</label>
         <input id="last-name" type="text" class="w-full border px-3 py-2 rounded" />
       </div>
 
-      <!-- Über mich -->
       <div>
         <label class="block font-medium">Über mich</label>
         <textarea id="bio" rows="3" class="w-full border px-3 py-2 rounded"></textarea>
       </div>
 
-      <!-- Speichern -->
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Speichern</button>
       <p id="status" class="text-sm mt-2"></p>
     </form>
   </div>
-
-  <!-- Lokales Profilbild (liegt neben dieser Datei als PNG) -->
-  <style>
-    #status { transition: opacity 0.4s; }
-  </style>
-
-  <script>
-    // Supabase-Init
-    const supabase = window.supabase.createClient(
-      "https://ytcrvruzmqjehnoaffda.supabase.co",
-      "eyJhbGciOi..." // Dein anon public key
-    );
-
-    let currentUserId = null;
-    let avatarUrl = "default-avatar.png";
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      const { data: authData, error } = await supabase.auth.getUser();
-      if (error || !authData.user) {
-        document.getElementById("status").textContent = "Nicht eingeloggt.";
-        return;
-      }
-
-      currentUserId = authData.user.id;
-
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", currentUserId)
-        .single();
-
-      if (profile) {
-        document.getElementById("first-name").value = profile.first_name || "";
-        document.getElementById("last-name").value = profile.last_name || "";
-        document.getElementById("bio").value = profile.bio || "";
-        if (profile.avatar_url) {
-          avatarUrl = profile.avatar_url;
-          document.getElementById("avatar-preview").src = avatarUrl;
-        }
-      }
-    });
-
-    document.getElementById("avatar-upload").addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file || !currentUserId) return;
-
-      const filePath = `avatars/${currentUserId}_${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) {
-        document.getElementById("status").textContent = "❌ Fehler beim Hochladen.";
-        return;
-      }
-
-      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      avatarUrl = data.publicUrl;
-      document.getElementById("avatar-preview").src = avatarUrl;
-    });
-
-    document.getElementById("profile-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!currentUserId) return;
-
-      const updateData = {
-        first_name: document.getElementById("first-name").value,
-        last_name: document.getElementById("last-name").value,
-        bio: document.getElementById("bio").value,
-        avatar_url: avatarUrl,
-      };
-
-      const { error } = await supabase
-        .from("user_profiles")
-        .update(updateData)
-        .eq("id", currentUserId);
-
-      document.getElementById("status").textContent = error
-        ? "❌ Fehler beim Speichern"
-        : "✅ Profil aktualisiert";
-    });
-  </script>
 </body>
 </html>
