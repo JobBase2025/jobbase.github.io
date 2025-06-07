@@ -17,23 +17,28 @@ async function updateUserInterface(user) {
     loginButton?.classList.add("hidden");
     registerButton?.classList.add("hidden");
     userProfile?.classList.remove("hidden");
-    userEmail.textContent = user.email;
+    if (userEmail) userEmail.textContent = user.email;
 
-    // Avatar laden
+    // Avatar laden, falls vorhanden
     if (avatarImage) {
-      const { data: profile, error } = await supabase
-        .from("user_profiles")
-        .select("avatar_url")
-        .eq("id", user.id)
-        .single();
+      try {
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("avatar_url")
+          .eq("id", user.id)
+          .single();
 
-      avatarImage.src = profile?.avatar_url || "default-avatar.png";
+        avatarImage.src = profile?.avatar_url || "default-avatar.png";
+      } catch (err) {
+        console.warn("Avatar konnte nicht geladen werden:", err.message);
+        avatarImage.src = "default-avatar.png";
+      }
     }
   } else {
     loginButton?.classList.remove("hidden");
     registerButton?.classList.remove("hidden");
     userProfile?.classList.add("hidden");
-    userEmail.textContent = "";
+    if (userEmail) userEmail.textContent = "";
     if (avatarImage) avatarImage.src = "default-avatar.png";
   }
 }
@@ -64,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     updateUserInterface(user);
   } catch (error) {
-    showNotification("Fehler beim Abrufen des Benutzers", "error");
+    console.warn("Kein Benutzer angemeldet oder Fehler:", error.message);
   }
 
   const style = document.createElement("style");
@@ -93,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.head.appendChild(style);
 });
 
-// Abmelden
+// Logout
 logoutButton?.addEventListener("click", async () => {
   try {
     const { error } = await supabase.auth.signOut();
