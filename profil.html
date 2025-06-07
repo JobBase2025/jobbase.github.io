@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mein Profil – Jobbase</title>
+  <title>Mein Profil – JobBase</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Navigation -->
   <div id="nav-placeholder"></div>
   <script>
     fetch("nav.html")
@@ -17,29 +18,23 @@
       });
   </script>
 
-  <div class="max-w-xl mx-auto py-10 px-4 bg-white shadow-md rounded mt-10">
+  <main class="max-w-xl mx-auto py-10 px-4 bg-white shadow-md rounded mt-10">
     <h1 class="text-2xl font-semibold mb-6">Mein Profil</h1>
+
     <form id="profile-form" class="space-y-4">
       <div class="flex items-center gap-4">
         <img id="avatar-preview" src="default-avatar.png" alt="Profilbild" class="w-20 h-20 rounded-full object-cover border" />
         <input type="file" id="avatar-upload" accept="image/*" class="text-sm" />
       </div>
-      <div>
-        <label class="block font-medium">Vorname</label>
-        <input id="first-name" type="text" class="w-full border px-3 py-2 rounded" />
-      </div>
-      <div>
-        <label class="block font-medium">Nachname</label>
-        <input id="last-name" type="text" class="w-full border px-3 py-2 rounded" />
-      </div>
-      <div>
-        <label class="block font-medium">Über mich</label>
-        <textarea id="bio" rows="3" class="w-full border px-3 py-2 rounded"></textarea>
-      </div>
+
+      <input id="first-name" type="text" placeholder="Vorname" class="w-full border px-3 py-2 rounded" />
+      <input id="last-name" type="text" placeholder="Nachname" class="w-full border px-3 py-2 rounded" />
+      <textarea id="bio" rows="3" placeholder="Über mich" class="w-full border px-3 py-2 rounded"></textarea>
+
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Speichern</button>
-      <p id="status" class="text-sm mt-2"></p>
+      <p id="status" class="text-sm mt-2 text-center"></p>
     </form>
-  </div>
+  </main>
 
   <script src="script.js" defer></script>
 </body>
