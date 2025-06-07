@@ -1,223 +1,30 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JobBase - Nachbarschaftshilfe & Minijobs</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jobbase – Startseite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script defer src="script.js"></script>
 </head>
-<body>
-  <header>
-    <div class="container">
-      <div class="logo">
-        <img src="/image.png" height="300%" width="300%" alt="JobConnect Logo">
-      </div>
-      <nav>
-        <ul>
-          <li><a href="/index.html" class="active">Startseite</a></li>
-          <li><a href="/jobsuche.html">Jobs finden</a></li>
-          <li><a href="/jobanbieten.html">Job anbieten</a></li>
-          <li><a href="#">Über uns</a></li>
-        </ul>
-      </nav>
-      <div class="auth-buttons">
-        <a href="anmelden.html">
-        <button id="login-button" class="btn">Anmelden</button></a>
-        <a href="anmelden.html" & switchtab="signup-tab">
-        <button id="register-button" class="btn btn-primary">Registrieren</button>
-        </a>
-        <div id="user-profile" class="hidden">
-          <span id="user-email"></span>
-          <button id="logout-button" class="btn btn-small">Abmelden</button>
-        </div>
-      </div>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-3xl mx-auto p-6 bg-white shadow mt-10 rounded">
+    <h1 class="text-3xl font-bold mb-4 text-blue-600">Jobbase</h1>
+    <p class="mb-6 text-gray-700">Finde oder biete Minijobs in deiner Nachbarschaft an.</p>
+
+    <div class="space-x-4 mb-6">
+      <a href="jobsuche.html" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Job suchen</a>
+      <a href="jobanbieten.html" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Job anbieten</a>
+      <a href="anmelden.html" id="login-link" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Anmelden</a>
     </div>
-  </header>
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <div class="hero-content">
-          <h1>Finde Hilfe in deiner Nachbarschaft</h1>
-          <p>JobBase bringt helfende Hände mit offenen Aufgaben zusammen</p>
-          <div class="hero-buttons">
-            <a  href="/jobsuche.html">
-            <button class="btn btn-primary btn-large">Job finden </button>
-            </a>
-            <a href="/jobanbieten.html"><button class="btn btn-secondary btn-large">Job anbieten</button></a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="features">
-      <div class="container">
-        <h2>Wie es funktioniert</h2>
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-icon">🔍</div>
-            <h3>Suchen</h3>
-            <p>Finde passende Jobs oder Helfer in deiner Nähe</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🤝</div>
-            <h3>Verbinden</h3>
-            <p>Nimm Kontakt auf und bespreche die Details</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">✅</div>
-            <h3>Erledigen</h3>
-            <p>Führe den Job aus oder lass dir helfen</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">⭐</div>
-            <h3>Bewerten</h3>
-            <p>Gib Feedback und hilf anderen bei der Auswahl</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="job-categories">
-      <div class="container">
-        <h2>Beliebte Kategorien</h2>
-        <div class="category-grid">
-          <div class="category-card">
-            <h3>Gartenarbeit</h3>
-            <p>Rasen mähen, Unkraut jäten, Pflanzen</p>
-          </div>
-          <div class="category-card">
-            <h3>Haushaltshilfe</h3>
-            <p>Putzen, Aufräumen, Kochen</p>
-          </div>
-          <div class="category-card">
-            <h3>Handwerkliche Arbeiten</h3>
-            <p>Reparaturen, Montage, Aufbau</p>
-          </div>
-          <div class="category-card">
-            <h3>Nachhilfe</h3>
-            <p>Schulnachhilfe, Sprachunterricht</p>
-          </div>
-          <div class="category-card">
-            <h3>Tierpflege</h3>
-            <p>Gassi gehen, Füttern, Betreuung</p>
-          </div>
-          <div class="category-card">
-            <h3>Einkaufshilfe</h3>
-            <p>Lebensmittel, Medikamente, Besorgungen</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Login Modal -->
-  <div id="login-modal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <h2>Anmelden</h2>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="login-email">E-Mail</label>
-          <input type="email" id="login-email" required>
-        </div>
-        <div class="form-group">
-          <label for="login-password">Passwort</label>
-          <input type="password" id="login-password" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-full">Anmelden</button>
-      </form>
-      <div class="form-footer">
-        <p>Noch kein Konto? <a href="#" id="show-register">Registrieren</a></p>
-        <p><a href="#" id="forgot-password">Passwort vergessen?</a></p>
-      </div>
+    <!-- Nach Login sichtbar -->
+    <div id="user-nav" class="hidden text-sm">
+      Eingeloggt als <span id="user-email" class="font-semibold text-blue-600"></span> |
+      <a href="profil.html" class="text-blue-600 underline">Mein Profil</a> |
+      <button id="logout-button" class="text-red-500 underline">Logout</button>
     </div>
   </div>
-
-  <!-- Register Modal -->
-  <div id="register-modal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <h2>Registrieren</h2>
-      <form id="register-form">
-        <div class="form-group">
-          <label for="register-email">E-Mail</label>
-          <input type="email" id="register-email" required>
-        </div>
-        <div class="form-group">
-          <label for="register-password">Passwort</label>
-          <input type="password" id="register-password" required minlength="6">
-        </div>
-        <div class="form-group">
-          <label for="register-password-confirm">Passwort bestätigen</label>
-          <input type="password" id="register-password-confirm" required minlength="6">
-        </div>
-        <div class="form-group">
-          <label>Ich bin ein:</label>
-          <div class="radio-group">
-            <label>
-              <input type="radio" name="user-type" value="worker" checked> Arbeitnehmer
-            </label>
-            <label>
-              <input type="radio" name="user-type" value="employer"> Arbeitgeber
-            </label>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>
-            <input type="checkbox" id="terms-checkbox" required>
-            Ich akzeptiere die <a href="#">Nutzungsbedingungen</a> und <a href="#">Datenschutzrichtlinien</a>
-          </label>
-        </div>
-        <button type="submit" class="btn btn-primary btn-full">Registrieren</button>
-      </form>
-      <div class="form-footer">
-        <p>Bereits registriert? <a href="#" id="show-login">Anmelden</a></p>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-column">
-          <h3>JobConnect</h3>
-          <p>Deine Plattform für Nachbarschaftshilfe und Minijobs.</p>
-        </div>
-        <div class="footer-column">
-          <h3>Links</h3>
-          <ul>
-            <li><a href="#">Startseite</a></li>
-            <li><a href="#">Jobs finden</a></li>
-            <li><a href="#">Job anbieten</a></li>
-            <li><a href="#">Über uns</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>Rechtliches</h3>
-          <ul>
-            <li><a href="#">Impressum</a></li>
-            <li><a href="#">Datenschutz</a></li>
-            <li><a href="#">AGB</a></li>
-            <li><a href="#">Cookie-Richtlinie</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>Kontakt</h3>
-          <ul>
-            <li>info@jobconnect.de</li>
-            <li>+49 123 456789</li>
-            <li>Musterstraße 123, 12345 Berlin</li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 JobConnect. Alle Rechte vorbehalten.</p>
-      </div>
-    </div>
-  </footer>
-
-  <script src="/main/script.js"></script>
 </body>
 </html>
