@@ -3,28 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jobbase – Startseite</title>
+  <title>Jobbase – Nachbarschaftshilfe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script defer src="script.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
-  <div class="max-w-3xl mx-auto p-6 bg-white shadow mt-10 rounded">
+
+  <!-- Hauptcontainer -->
+  <div class="max-w-3xl mx-auto p-6 bg-white shadow-md mt-10 rounded">
     <h1 class="text-3xl font-bold mb-4 text-blue-600">Jobbase</h1>
     <p class="mb-6 text-gray-700">Finde oder biete Minijobs in deiner Nachbarschaft an.</p>
 
+    <!-- Navigation -->
     <div class="space-x-4 mb-6">
-      <a href="jobsuche.html" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Job suchen</a>
-      <a href="jobanbieten.html" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Job anbieten</a>
-      <a href="anmelden.html" id="login-link" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Anmelden</a>
+      <a href="jobsuche.html" class="bg-blue-100 px-4 py-2 rounded hover:bg-blue-200">Job suchen</a>
+      <a href="jobanbieten.html" class="bg-blue-100 px-4 py-2 rounded hover:bg-blue-200">Job anbieten</a>
+
+      <!-- Login/Register Buttons -->
+      <a href="anmelden.html" id="login-button" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Anmelden</a>
+      <a href="anmelden.html" id="register-button" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Registrieren</a>
     </div>
 
     <!-- Nach Login sichtbar -->
-    <div id="user-nav" class="hidden text-sm">
+    <div id="user-profile" class="hidden text-sm mt-4">
       Eingeloggt als <span id="user-email" class="font-semibold text-blue-600"></span> |
       <a href="profil.html" class="text-blue-600 underline">Mein Profil</a> |
-      <button id="logout-button" class="text-red-500 underline">Logout</button>
+      <button id="logout-button" class="text-red-500 underline">Abmelden</button>
     </div>
   </div>
+
 </body>
 </html>
