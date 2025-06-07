@@ -1,29 +1,110 @@
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('helpForm');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job anbieten – Jobbase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <header class="bg-white shadow p-4 mb-6">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold text-blue-600">Jobbase</h1>
+      <a href="jobsuche.html" class="text-sm text-green-600 hover:underline">Jobs suchen</a>
+    </div>
+  </header>
 
-            const formData = {
-                title: form.title.value,
-                location: form.location.value,
-                duration: form.duration.value,
-                urgency: form.urgency.value,
-                payment: form.payment.value,
-                description: form.description.value,
-                created_at: new Date().toISOString()
-            };
+  <main class="container mx-auto px-4 max-w-2xl">
+    <h2 class="text-2xl font-semibold mb-6 text-center">Job in deiner Nachbarschaft anbieten</h2>
 
-            const { data, error } = await supabase.from('mini_jobs').insert([formData]);
+    <form id="jobForm" class="space-y-4 bg-white p-6 rounded shadow">
+      <div>
+        <label for="title" class="block font-medium">Titel *</label>
+        <input id="title" name="title" required placeholder="z. B. Hilfe beim Umzug" class="w-full border px-3 py-2 rounded" />
+      </div>
 
-            if (error) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('successMessage').style.display = 'none';
-            } else {
-                document.getElementById('successMessage').style.display = 'block';
-                document.getElementById('errorMessage').style.display = 'none';
-                form.reset();
-            }
-        });
+      <div>
+        <label for="description" class="block font-medium">Beschreibung *</label>
+        <textarea id="description" name="description" rows="4" required placeholder="Beschreibe genau, was du brauchst…" class="w-full border px-3 py-2 rounded"></textarea>
+      </div>
+
+      <div>
+        <label for="location" class="block font-medium">Ort *</label>
+        <input id="location" name="location" required placeholder="z. B. Berlin-Prenzlauer Berg" class="w-full border px-3 py-2 rounded" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="duration" class="block font-medium">Dauer</label>
+          <select id="duration" name="duration" class="w-full border px-3 py-2 rounded">
+            <option value="">Wähle...</option>
+            <option>30 Minuten</option>
+            <option>1–2 Stunden</option>
+            <option>Halber Tag</option>
+            <option>Ganzer Tag</option>
+            <option>Regelmäßig</option>
+          </select>
+        </div>
+        <div>
+          <label for="urgency" class="block font-medium">Wann</label>
+          <select id="urgency" name="urgency" class="w-full border px-3 py-2 rounded">
+            <option value="">Wähle...</option>
+            <option>Sofort</option>
+            <option>Heute</option>
+            <option>Diese Woche</option>
+            <option>Nächste Woche</option>
+            <option>Flexibel</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="payment" class="block font-medium">Bezahlung</label>
+        <input id="payment" name="payment" placeholder="z. B. 15 €/h oder Kuchen & Kaffee" class="w-full border px-3 py-2 rounded" />
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+        Job veröffentlichen
+      </button>
+
+      <p id="message" class="text-center text-sm mt-4"></p>
+    </form>
+  </main>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://ytcrvruzmqjehnoaffda.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y3J2cnV6bXFqZWhub2FmZmRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDc4NDUsImV4cCI6MjA2MDM4Mzg0NX0.gndc10XvC_Imyl3mPXb8EyXHKZiLAa3FHSn5J39qUB0"
+    );
+
+    const form = document.getElementById('jobForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const jobData = {
+        title: form.title.value,
+        description: form.description.value,
+        location: form.location.value,
+        duration: form.duration.value,
+        urgency: form.urgency.value,
+        payment: form.payment.value,
+        created_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase.from('mini_jobs').insert([jobData]);
+
+      if (error) {
+        message.textContent = "❌ Fehler beim Speichern. Bitte versuche es erneut.";
+        message.className = "text-red-600 text-center";
+      } else {
+        message.textContent = "✅ Job erfolgreich veröffentlicht!";
+        message.className = "text-green-600 text-center";
+        form.reset();
+      }
     });
-</script>
+  </script>
+</body>
+</html>
